@@ -198,8 +198,12 @@ bool ssd1306_init(ssd1306_t *display, uint8_t width, uint8_t height, uint8_t vcc
     if (display->interface == SSD1306_I2C) {
         // Configure I2C pins
         rcc_periph_clock_enable(RCC_GPIOA);
-        gpio_mode_setup(display->config.i2c.port, GPIO_MODE_AF, GPIO_PUPD_PULLDOWN, 
+        gpio_mode_setup(display->config.i2c.port, GPIO_MODE_AF, GPIO_PUPD_PULLUP, 
             display->config.i2c.scl_pin | display->config.i2c.sda_pin);
+        gpio_set_output_options(display->config.i2c.port, GPIO_OTYPE_OD, GPIO_OSPEED_2MHZ, 
+            display->config.i2c.scl_pin | display->config.i2c.sda_pin);  
+        gpio_set_af(display->config.i2c.port, GPIO_AF4, 
+            display->config.i2c.scl_pin | display->config.i2c.sda_pin);  
         rcc_periph_clock_enable(RCC_I2C1);
         i2c_set_speed(I2C1, i2c_speed_sm_100k, rcc_apb1_frequency / 1000000);
         i2c_peripheral_enable(display->config.i2c.i2c);
