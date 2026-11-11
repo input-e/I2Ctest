@@ -23,7 +23,21 @@ static void delay_ms(uint32_t ms) {
 
 // Low-level communication functions
 static void ssd1306_i2c_write_command(ssd1306_t *display, uint8_t cmd) {
+    i2c_set_7bit_address(display->config.i2c.i2c, display->config.i2c.address);
+    i2c_set_write_transfer_dir(display->config.i2c.i2c);
+    i2c_set_bytes_to_transfer(display->config.i2c.i2c, sizeof(cmd));
+    i2c_enable_autoend(display->config.i2c.i2c);
     i2c_send_start(display->config.i2c.i2c);
+    bool wait = true;
+    while (wait) {
+        if (i2c_transmit_int_status(display->config.i2c.i2c)) {
+            wait = false;
+        }
+        while (i2c_nack(display->config.i2c.i2c)); /* FIXME Some error */
+    }
+    i2c_send_data(display->config.i2c.i2c, cmd);
+    
+    /*i2c_send_start(display->config.i2c.i2c);
     while (!((I2C_SR1(display->config.i2c.i2c) & I2C_SR1_SB) 
              & (I2C_SR2(display->config.i2c.i2c) & (I2C_SR2_MSL | I2C_SR2_BUSY))));
     
@@ -37,11 +51,28 @@ static void ssd1306_i2c_write_command(ssd1306_t *display, uint8_t cmd) {
     i2c_send_data(display->config.i2c.i2c, cmd);
     while (!(I2C_SR1(display->config.i2c.i2c) & I2C_SR1_BTF));
     
-    i2c_send_stop(display->config.i2c.i2c);
+    i2c_send_stop(display->config.i2c.i2c);*/
 }
 
 static void ssd1306_i2c_write_data(ssd1306_t *display, uint8_t *data, uint16_t len) {
+    i2c_set_7bit_address(display->config.i2c.i2c, display->config.i2c.address);
+    i2c_set_write_transfer_dir(display->config.i2c.i2c);
+    i2c_set_bytes_to_transfer(display->config.i2c.i2c, len);
+    i2c_enable_autoend(display->config.i2c.i2c);
     i2c_send_start(display->config.i2c.i2c);
+    while (len--){
+        bool wait = true;
+        while (wait) {
+            if (i2c_transmit_int_status(display->config.i2c.i2c)) {
+                wait = false;
+            }
+            while (i2c_nack(display->config.i2c.i2c)); /* FIXME Some error */
+        }
+        i2c_send_data(display->config.i2c.i2c, *data++);
+    }
+    
+    
+    /*i2c_send_start(display->config.i2c.i2c);
     while (!((I2C_SR1(display->config.i2c.i2c) & I2C_SR1_SB) 
              & (I2C_SR2(display->config.i2c.i2c) & (I2C_SR2_MSL | I2C_SR2_BUSY))));
     
@@ -57,7 +88,7 @@ static void ssd1306_i2c_write_data(ssd1306_t *display, uint8_t *data, uint16_t l
         while (!(I2C_SR1(display->config.i2c.i2c) & I2C_SR1_BTF));
     }
     
-    i2c_send_stop(display->config.i2c.i2c);
+    i2c_send_stop(display->config.i2c.i2c);*/
 }
 
 static void ssd1306_spi_write_byte(ssd1306_t *display, uint8_t data) {
