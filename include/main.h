@@ -1,3 +1,1 @@
-#include "hardwareconf.h"
-
-extern ssd1306_t Display;
+#include "driver_ssd1306_basic.h"

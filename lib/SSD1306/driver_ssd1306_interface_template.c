@@ -36,7 +36,9 @@
  */
 
 #include "driver_ssd1306_interface.h"
-
+#include <libopencm3/stm32/gpio.h>
+#include <libopencm3/stm32/i2c.h>
+#include <libopencm3/stm32/rcc.h>
 /**
  * @brief  interface iic bus init
  * @return status code
@@ -46,6 +48,13 @@
  */
 uint8_t ssd1306_interface_iic_init(void)
 {
+    rcc_periph_clock_enable(RCC_GPIOA);
+    gpio_mode_setup(GPIOA, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO9 | GPIO10);
+    gpio_set_output_options(GPIOA, GPIO_OTYPE_OD, GPIO_OSPEED_2MHZ, GPIO9 | GPIO10);  
+    gpio_set_af(GPIOA, GPIO_AF4, GPIO9 | GPIO10);  
+    rcc_periph_clock_enable(RCC_I2C1);
+    i2c_set_speed(I2C1, i2c_speed_sm_100k, rcc_apb1_frequency / 1000000);
+    i2c_peripheral_enable(I2C1);
     return 0;
 }
 
@@ -74,6 +83,7 @@ uint8_t ssd1306_interface_iic_deinit(void)
  */
 uint8_t ssd1306_interface_iic_write(uint8_t addr, uint8_t reg, uint8_t *buf, uint16_t len)
 {
+    i2c_transfer7(I2C1, addr, buf, (size_t)len, NULL, 0);
     return 0;
 }
 
@@ -122,7 +132,7 @@ uint8_t ssd1306_interface_spi_write_cmd(uint8_t *buf, uint16_t len)
  */
 void ssd1306_interface_delay_ms(uint32_t ms)
 {
-
+    for(int i = 0; i < (8000 * ms);i++) __asm__("nop");
 }
 
 /**
