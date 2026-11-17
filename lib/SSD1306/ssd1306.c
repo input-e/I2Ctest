@@ -90,7 +90,7 @@ static void ssd1306_i2c_write_data(ssd1306_t *display, uint8_t *data, uint16_t l
     
     i2c_send_stop(display->config.i2c.i2c);*/
 }
-
+/*
 static void ssd1306_spi_write_byte(ssd1306_t *display, uint8_t data) {
     if (display->interface == SSD1306_SPI_HW) {
         spi_send(display->config.spi.spi, data);
@@ -125,7 +125,7 @@ static void ssd1306_spi_write_data(ssd1306_t *display, uint8_t *data, uint16_t l
     }
     gpio_set(display->config.spi.port, display->config.spi.cs_pin);
 }
-
+*/
 // Command wrapper function
 void ssd1306_command(ssd1306_t *display, uint8_t cmd) {
     if (display->interface == SSD1306_I2C) {
@@ -198,7 +198,7 @@ bool ssd1306_init(ssd1306_t *display, uint8_t width, uint8_t height, uint8_t vcc
     if (display->interface == SSD1306_I2C) {
         // Configure I2C pins
         rcc_periph_clock_enable(RCC_GPIOA);
-        gpio_mode_setup(display->config.i2c.port, GPIO_MODE_AF, GPIO_PUPD_PULLUP, 
+        gpio_mode_setup(display->config.i2c.port, GPIO_MODE_AF, GPIO_PUPD_NONE, 
             display->config.i2c.scl_pin | display->config.i2c.sda_pin);
         gpio_set_output_options(display->config.i2c.port, GPIO_OTYPE_OD, GPIO_OSPEED_2MHZ, 
             display->config.i2c.scl_pin | display->config.i2c.sda_pin);  

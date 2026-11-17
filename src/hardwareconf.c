@@ -8,5 +8,5 @@ void ssdset(){
 }
 
 void RCCconf(){
-    rcc_clock_setup_in_hse_8mhz_out_48mhz();
+    //rcc_clock_setup_in_hse_8mhz_out_48mhz();
 }
