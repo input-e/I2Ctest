@@ -2,7 +2,7 @@
 
 
 int main(void){
-    ssd1306_basic_init(SSD1306_INTERFACE_IIC, 0x3C);
+    ssd1306_basic_init(SSD1306_INTERFACE_IIC, SSD1306_ADDR_SA0_0);
     while(1){
         ssd1306_basic_clear();
         for (int i = 0; i < 8000000;i++) {__asm__("nop");}

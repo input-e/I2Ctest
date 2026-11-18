@@ -83,7 +83,35 @@ uint8_t ssd1306_interface_iic_deinit(void)
  */
 uint8_t ssd1306_interface_iic_write(uint8_t addr, uint8_t reg, uint8_t *buf, uint16_t len)
 {
-    i2c_transfer7(I2C1, addr, buf, (size_t)len, NULL, 0);
+    //uint8_t transfer_buffer[1024];
+    //transfer_buffer[0] = reg;
+    //memcpy(&transfer_buffer[1], buf, len);
+    //i2c_transfer7(I2C1, 0x3C, transfer_buffer, sizeof(transfer_buffer), NULL, 0);
+    i2c_set_7bit_address(I2C1, 0x3C);
+	i2c_set_write_transfer_dir(I2C1);
+    //size_t ln = sizeof(buf) + sizeof(reg);
+    size_t ln = (size_t)len + 1;
+	i2c_set_bytes_to_transfer(I2C1, ln);
+	i2c_enable_autoend(I2C1);
+	i2c_send_start(I2C1);
+    bool flag = 0;
+    while (ln--) {
+		bool wait = true;
+		while (wait) {
+			if (i2c_transmit_int_status(I2C1)) {
+				wait = false;
+			}
+			while (i2c_nack(I2C1));
+		}
+        if (flag == 1){
+            i2c_send_data(I2C1, *(buf++));
+        }
+        else{
+            i2c_send_data(I2C1, reg);
+            flag = 1;
+        }
+    }
+	
     return 0;
 }
 
